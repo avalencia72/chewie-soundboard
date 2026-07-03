@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chewie Says</title>
+<style>
+  :root {
+    --bg1:#fff7e6; --bg2:#f1d2a1; --card:#ffffffdd; --text:#2d2118; --accent:#8b4f24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; min-height:100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color:var(--text); background: radial-gradient(circle at top, var(--bg1), var(--bg2));
+    display:flex; align-items:center; justify-content:center; padding:22px;
+  }
+  .app {
+    width:min(520px, 100%); background:var(--card); border-radius:30px; padding:22px;
+    box-shadow:0 20px 60px #6b3d1f55; text-align:center; backdrop-filter: blur(8px);
+  }
+  h1 { margin:8px 0 4px; font-size:34px; letter-spacing:-.5px; }
+  .sub { margin:0 0 18px; font-size:16px; opacity:.75; }
+  .photo {
+    width:230px; height:230px; object-fit:cover; border-radius:50%;
+    border:8px solid white; box-shadow:0 10px 35px #5b351c55; margin:8px auto 20px; display:block;
+  }
+  .bubble {
+    min-height:86px; display:flex; align-items:center; justify-content:center; padding:18px;
+    background:#fff; border-radius:22px; font-size:23px; line-height:1.25; font-weight:700;
+    box-shadow: inset 0 0 0 1px #00000010; margin-bottom:16px;
+  }
+  button {
+    border:0; border-radius:18px; padding:16px 18px; font-size:18px; font-weight:800;
+    background:var(--accent); color:white; box-shadow:0 8px 0 #5b3217; width:100%;
+    touch-action: manipulation;
+  }
+  button:active { transform: translateY(5px); box-shadow:0 3px 0 #5b3217; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+  .small { font-size:15px; padding:12px; background:#5f6b3a; box-shadow:0 6px 0 #3d4525; }
+  .small:active { box-shadow:0 2px 0 #3d4525; }
+  .hint { font-size:12px; opacity:.6; margin-top:14px; }
+</style>
+</head>
+<body>
+  <main class="app">
+    <h1>Chewie Says</h1>
+    <p class="sub">Tap for executive doggie commentary.</p>
+    <img id="chewiePhoto" class="photo" src="chewie_selfie.jpeg" alt="Chewie">
+    <div id="phrase" class="bubble">“I’m ready, Dad.”</div>
+    <button onclick="sayRandom()">🐾 Ask Chewie</button>
+    <div class="grid">
+      <button class="small" onclick="sayFrom(food)">🍗 Food</button>
+      <button class="small" onclick="sayFrom(boss)">💼 Boss Mode</button>
+      <button class="small" onclick="sayFrom(security)">🚨 Security</button>
+      <button class="small" onclick="sayFrom(gameDay)">🏈 Game Day</button>
+    </div>
+    <p class="hint">Uses your phone/computer voice. Best on Safari/Chrome with volume on.</p>
+  </main>
+
+<script>
+const photos = ["chewie_selfie.jpeg", "chewie_christmas.jpeg", "chewie_grass.jpeg"];
+
+const boss = [
+  "You’re right, Dad.",
+  "Right again, Dad.",
+  "Whatever you say, Boss.",
+  "Excellent point, Dad.",
+  "Strong leadership, Dad.",
+  "I support this decision.",
+  "That sounds correct, Boss.",
+  "I trust your judgment completely.",
+  "Another outstanding call by management.",
+  "I reviewed the situation and agree completely."
+];
+
+const food = [
+  "Can I have a bite?",
+  "I believe I earned chicken.",
+  "I heard the cheese drawer.",
+  "Can I review the snack options?",
+  "I would like to file a treat request.",
+  "I’m not begging. I’m monitoring the food situation.",
+  "Just one tiny bite. For morale.",
+  "Dad, the chicken allocation seems low."
+];
+
+const security = [
+  "I was monitoring the perimeter.",
+  "I did bark, but in fairness, he looked suspicious.",
+  "I protect this house from Amazon drivers and squirrels.",
+  "The yard is secure, Dad.",
+  "I wasn’t on the couch. I was guarding it.",
+  "There was a noise. I handled it professionally."
+];
+
+const gameDay = [
+  "Michigan football starts soon, Dad.",
+  "We need snacks and emotional preparation.",
+  "Go Blue, Boss.",
+  "I’m wearing fur, but emotionally I’m in maize and blue.",
+  "I support the Wolverines and also chicken."
+];
+
+const allPhrases = [...boss, ...food, ...security, ...gameDay];
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function setPhoto() {
+  document.getElementById("chewiePhoto").src = pick(photos);
+}
+
+function getVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => /Daniel|Fred|Alex|Google UK English Male|Microsoft David/i.test(v.name));
+  return preferred || voices.find(v => /male|english|us/i.test(v.name)) || voices[0];
+}
+
+function speak(text) {
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.voice = getVoice();
+  u.pitch = 0.72;
+  u.rate = 0.88;
+  u.volume = 1.0;
+  window.speechSynthesis.speak(u);
+}
+
+function say(text) {
+  document.getElementById("phrase").textContent = "“" + text + "”";
+  setPhoto();
+  speak(text);
+}
+
+function sayRandom() { say(pick(allPhrases)); }
+function sayFrom(arr) { say(pick(arr)); }
+
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = () => getVoice();
+}
+</script>
+</body>
+</html>
